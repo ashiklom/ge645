@@ -371,6 +371,7 @@
 *
 	sum_tL = sum_tL*conv1_tL
 	Gdir  = sum_tL
+	write(*,*) "Gdir check = ", Gdir
 *
 * done
 * 
