@@ -19,7 +19,7 @@ I.o.uncol.down <- function(DeltaL, Nlayers, Gdir, I.o, mu.o){
 soil.direct <- function(DeltaL, Nlayers, Gdir, R.s){
     L1 <- 0
     L2 <- Nlayers * DeltaL
-    F.o.uc.d.soil <- abs(mu.o) * I.o * exp(-1/abs(mu.o)) * Gdir * (L2-L1)
+    F.o.uc.d.soil <- abs(mu.o) * I.o * exp(-1/abs(mu.o) * Gdir * (L2-L1))
     I.o.uc.u.soil <- (R.s/pi) * F.o.uc.d.soil
     return(c("flux"=F.o.uc.d.soil, "intensity"=I.o.uc.u.soil))
 }
@@ -46,7 +46,7 @@ I.o.uncol.up <- function(DeltaL, Nlayers, Gdir, Gdif, I.o, mu.o,
 
 # I.d.uncol.down {{{
 # Downward uncollided diffuse sky radiation
-I.d.uncol.down <- function(DeltaL, Nlayers, Gdif, I.d, ng, xg, I.d.uc.d){
+I.d.uncol.down <- function(DeltaL, Nlayers, Gdif, I.d, ng, xg){
     I.d.uc.d <- array(0, c(Nlayers, ng, ng))
     L1 <- 0
     for(i in 1:(ng/2)){
@@ -74,8 +74,8 @@ soil.diffuse <- function(DeltaL, Nlayers, ng, xg, wg, R.s){
         sum2 <- 0
         for(j in 1:ng){
             Prob <- exp(-1/abs(xg[i]) * Gdif[j,i] * (L2-L1))
-            I.d.uc.u.soil <- I.d * Prob
-            sum2 <- sum2 + wg[j] * I.d.uc.u.soil
+            I.d.uc.d.soil <- I.d * Prob
+            sum2 <- sum2 + wg[j] * I.d.uc.d.soil
         }
         sum1 <- sum1 + wg[i] * abs(xg[j]) * sum2 * conv
     }
@@ -90,9 +90,9 @@ soil.diffuse <- function(DeltaL, Nlayers, ng, xg, wg, R.s){
 I.d.uncol.up <- function(DeltaL, Nlayers, Gdif, I.d, ng, xg, wg, R.s,
                          I.d.uc.u.soil){
     I.d.uc.u <- array(0, c(Nlayers, ng, ng))
+    L2 <- Nlayers * DeltaL
     for(i in (ng/2+1):ng){
         for(j in 1:ng){
-            L2 <- Nlayers * DeltaL
             for(k in Nlayers:1){
                 L1 <- k * DeltaL - (0.5*DeltaL)
                 Prob <- exp(-1/abs(xg[i]) * Gdif[j,i] * (L2-L1))
@@ -132,7 +132,7 @@ FCS <- function(Nlayers, ng, xg, wg, Gamma.d.dir, Gamma.d.dif,
                         sum2 <- sum2 + wg[m] * 1/pi * Gamma.d.dif[m,n,j,i] *
                             (I.o.uc.u[k,m,n] + I.d.uc.d[k,m,n] + I.d.uc.u[k,m,n])
                     }
-                    sum1 <- sum1 * wg[n]*sum2*conv21
+                    sum1 <- sum1 + wg[n]*sum2*conv21
                 }
                 Q[k,j,i] <- Q[k,j,i] + sum1*conv11
             }
@@ -143,8 +143,7 @@ FCS <- function(Nlayers, ng, xg, wg, Gamma.d.dir, Gamma.d.dif,
 # }}}
 
 # SWEEP_DOWN {{{
-SWEEP_DOWN <- function(Nlayers, ng, xg, wg, Gdif, DeltaL, JJ, R.s){
-    Ic <- array(0, c(Nlayers+1, ng, ng))
+SWEEP_DOWN <- function(Nlayers, ng, xg, wg, Gdif, DeltaL, JJ, R.s, Ic){
     for(i in 1:(ng/2)){
         for(j in 1:ng){
             fij <- xg[i]/DeltaL - 0.5*Gdif[j,i]

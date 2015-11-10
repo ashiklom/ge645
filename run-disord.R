@@ -2,6 +2,7 @@
 source("xsections.R")
 source("disord1d.R")
 
+maxiter <- 100
 ng <- 8
 Nlayers <- 100
 Epsilon <- 0.0001
@@ -54,12 +55,13 @@ Q <- FCS(Nlayers, ng, xg, wg, Gamma.d.dir, Gamma.d.dif,
 
 # Iterate on Multiple-Collision Source S
 S <- array(0, c(Nlayers, ng, ng))
-for(ims in 1:100){
+Ic <- array(0, c(Nlayers+1, ng, ng))
+for(ims in 1:maxiter){
     print(ims)
     S <- Q + S
 
 # Sweep downwards plus handle the bottom boundary condition
-    Ic <- SWEEP_DOWN(Nlayers, ng, xg, wg, Gdif, DeltaL, S, R.s)
+    Ic <- SWEEP_DOWN(Nlayers, ng, xg, wg, Gdif, DeltaL, S, R.s, Ic)
 
 # Sweep upwards and check for convergence
     Ic.old <- Ic[1,,]
@@ -92,7 +94,7 @@ with(eb.list, {
          print(paste0("Canopy Absorbance: ", AB))
          print(paste0("Uncollided Soil Absorbance: ", (1-R.s)*HT.uc))
          print(paste0("Collided Soil Absorbance: ", (1-R.s)*HT.c))
-         print(paste0("Soil Absorbance", (1-R.s)*HT))
+         print(paste0("Soil Absorbance: ", (1-R.s)*HT))
          print(paste0("Energy balance (=1?): ", HR + AB + (1-R.s)*HT))
 })
 
