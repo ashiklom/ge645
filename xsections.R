@@ -137,7 +137,7 @@ G.dif.function <- function(gq, gL, hL){
     for(i in 1:ng){
         muprime <- xg[i]
         for(j in 1:ng){
-            phiprime <- conv1.pp*xg[i] + conv2.pp
+            phiprime <- conv1.pp*xg[j] + conv2.pp
             Gdif[j,i] <- G.dir.function(gq, gL, hL, muprime, phiprime)
         }
     }
