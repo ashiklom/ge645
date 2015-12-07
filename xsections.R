@@ -268,7 +268,7 @@ check.Gamma.d.dir <- function(gq, rho.Ld, tau.Ld, Gdir, Gamma.d.dir){
 # }}}
 
 # Gamma.d.dif.function {{{
-Gamma.d.dif.function <- function(gq, gL, hL, rho.Ld, tau.Ldh, Gdif){
+Gamma.d.dif.function <- function(gq, gL, hL, rho.Ld, tau.Ld, Gdif){
 # Extract quadrature
     ng <- nrow(gq)
     xg <- gq[,"ordinates"]

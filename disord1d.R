@@ -16,7 +16,7 @@ I.o.uncol.down <- function(DeltaL, Nlayers, Gdir, I.o, mu.o){
 
 # soil.direct {{{
 # Soil intensity
-soil.direct <- function(DeltaL, Nlayers, Gdir, R.s){
+soil.direct <- function(DeltaL, Nlayers, I.o, mu.o, Gdir, R.s){
     L1 <- 0
     L2 <- Nlayers * DeltaL
     F.o.uc.d.soil <- abs(mu.o) * I.o * exp(-1/abs(mu.o) * Gdir * (L2-L1))
@@ -28,7 +28,7 @@ soil.direct <- function(DeltaL, Nlayers, Gdir, R.s){
 # I.o.uncol.up {{{
 # Upward uncollided direct solar radiation
 I.o.uncol.up <- function(DeltaL, Nlayers, Gdir, Gdif, I.o, mu.o,
-                         ng, xg, R.s, I.o.uc.d.soil){
+                         ng, xg, R.s, I.o.uc.u.soil){
     I.o.uc.u <- array(0, c(Nlayers, ng, ng))
     L2 <- Nlayers * DeltaL
     for(i in (ng/2+1):ng){
@@ -63,7 +63,7 @@ I.d.uncol.down <- function(DeltaL, Nlayers, Gdif, I.d, ng, xg){
 # }}}
 
 # soil.diffuse {{{
-soil.diffuse <- function(DeltaL, Nlayers, ng, xg, wg, R.s){
+soil.diffuse <- function(DeltaL, Nlayers, ng, xg, wg, Gdif, I.d, R.s){
     L1 <- 0
     L2 <- Nlayers * DeltaL
     sum1 <- 0
@@ -197,7 +197,7 @@ SWEEP_UP <- function(Nlayers, ng, xg, wg, Gdif, DeltaL, JJ, Ic){
 # }}}
 
 # check.convergence {{{
-check.convergence <- function(Ic, Ic.old, epsilon){
+check.convergence <- function(ng, Ic, Ic.old, epsilon){
     convergence <- TRUE
     for(i in (ng/2+1):ng){
         for(j in 1:ng){
@@ -213,6 +213,7 @@ check.convergence <- function(Ic, Ic.old, epsilon){
 
 # MULTI_COLL_S {{{
 MULTI_COLL_S <- function(Nlayers, ng, xg, wg, Gamma.d.dif, Ic){
+    S <- array(0, c(Nlayers, ng, ng))
     for(i in 1:ng){
         for(j in 1:ng){
             for(k in 1:Nlayers){
@@ -242,9 +243,10 @@ MULTI_COLL_S <- function(Nlayers, ng, xg, wg, Gamma.d.dif, Ic){
 
 # ENERGY_BAL {{{
 # Compute the energy balance
-ENERGY_BAL <- function(Nlayers, gq, mu.o, Q, S, DeltaL, R.s, rho.Ld, tau.Ld,
+ENERGY_BAL <- function(Nlayers, ng, xg, wg, mu.o, Q, S, DeltaL, R.s, rho.Ld, tau.Ld,
            Gdir, Gdif, F.o.uc.d.soil, F.d.uc.d.soil,
            I.o.uc.d, I.d.uc.d, I.o.uc.u, I.d.uc.u, Ic){
+# Collided hemispherical transmittance
     upperlimit <- 2*pi
     lowerlimit <- 0
     conv <- (upperlimit-lowerlimit)/2
@@ -305,7 +307,7 @@ ENERGY_BAL <- function(Nlayers, gq, mu.o, Q, S, DeltaL, R.s, rho.Ld, tau.Ld,
     AB.o.uc.u <- sum1 * (1 - (rho.Ld + tau.Ld)) * DeltaL
 
 # Evaluate canopy absorption from I.d.uc.d
-    sum <- 1
+    sum1 <- 0
     for(k in 1:Nlayers){
         for(i in 1:(ng/2)){
             sum2 <- 0
