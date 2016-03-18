@@ -22,7 +22,7 @@ tau.Ld.swir <- 41.63/100
 LAI <- 2.2
 theta.o <- 74.17
 phi.o <- 81.9
-ng <- 8
+ng <- 12
 
 # Run model
 source("run-disord.R")
@@ -34,10 +34,3 @@ mod.swir <- run.disord(ng=ng, LAI=LAI, theta.o=theta.o, phi.o=phi.o,
                       R.s=R.s.swir, rho.Ld=rho.Ld.swir, tau.Ld=tau.Ld.swir, fdir=fdir.swir)
 save(mod.red, mod.nir, mod.swir, file="validation.RData")
 
-# Load data
-dat <- read.csv("pairie_site_validation data.csv")
-dat[,-1] <- dat[,-1] / 100      # Convert from percent reflectance to fraction
-
-# Validation plots
-plot(red1 ~ view.zenith, data=dat, col="red", pch=2, ylim=c(0, 0.15))
-points(mod.red$RF.mat[,1]-90, mod.red$RF.mat[,3], col="blue", pch=3)
